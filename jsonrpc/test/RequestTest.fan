@@ -1,11 +1,6 @@
 using util
-class RequestTest : Test, RpcConsts
+class RequestTest : Test, RpcConsts, TestUtils
 {
-  private static Obj json(Str str)
-  {
-    JsonInStream(str.in).readJson
-  }
-  
   Void testSimple()
   {
     request := Request.fromJson(json(Str<|{ "jsonrpc" : "2.0", "method": "foo" }|>))

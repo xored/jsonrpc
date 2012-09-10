@@ -11,6 +11,11 @@ mixin RpcConsts
   static const Str[] requestFields := [idField, paramsField, 
     methodField, versionField]
   
+  static const Str codeField := "code"
+  static const Str messageField := "message"
+  static const Str dataField := "data"
+  static const Str[] errFields := [codeField, messageField, dataField]
+
   static const Int parseErrCode := -32700
   static const Int invalidRequestCode := -32600
   
