@@ -6,10 +6,13 @@ mixin RpcConsts
   static const Str paramsField := "params"
   static const Str methodField := "method"
   static const Str versionField := "jsonrpc"
-  static const Str resultField := "result"
-  static const Str errField := "error"
   static const Str[] requestFields := [idField, paramsField, 
     methodField, versionField]
+  
+  static const Str resultField := "result"
+  static const Str errField := "error"
+  static const Str[] errResponseFields := [idField, versionField, errField]
+  static const Str[] resultResponseFields := [idField, versionField, resultField]
   
   static const Str codeField := "code"
   static const Str messageField := "message"

@@ -1,21 +1,24 @@
 
-class RpcErrTest : Test, RpcConsts, TestUtils
+class RpcErrTest : RpcBaseTest, RpcConsts
 {
   Void testSimpleJson()
   {
-    verifyFromToJson(RpcErr(0, "foo"), [codeField : 0, messageField : "foo"])
+    verifyJson(RpcErr(0, "foo"), Str<|{"code":0, "message":"foo"}|>)
   }
   
   Void testPrimitiveData()
   {
-    verifyFromToJson(RpcErr(0, "foo", 42), [codeField:0, messageField:"foo", dataField: 42])
+    verifyJson(
+      RpcErr(0, "foo", 42), 
+      Str<|{"code":0, "message":"foo", "data":42}|>
+    )
   }
   
   Void testCompositeDataToJson()
   {
-    verifyFromToJson(
-      RpcErr(0, "foo", ["foo":"bar", "list":[1,2,3]]), 
-      [codeField:0, messageField:"foo", dataField: ["foo":"bar", "list":[1,2,3]]]
+    verifyJson(
+      RpcErr(0, "foo", ["foo":"bar", "list":[1,2,3]]),
+      Str<|{ "code":0, "message":"foo", "data": { "foo":"bar", "list":[1,2,3]}}|>
     )
   }
     
@@ -26,16 +29,11 @@ class RpcErrTest : Test, RpcConsts, TestUtils
     verifyErr(ArgErr#) { RpcErr.fromJson([codeField : 0])  }
     verifyErr(ArgErr#) { RpcErr.fromJson([messageField : "foo"])  }
     verifyErr(ArgErr#) { RpcErr.fromJson([codeField : "0", messageField : "foo"]) }
-    verifyErr(ArgErr#) { RpcErr.fromJson([codeField : 0, messageField : 1 ]) }
+    verifyErr(ArgErr#) { RpcErr.fromJson([codeField : 0, messageField : 1]) }
   }
   
-  Void verifyFromToJson(RpcErr err, Str:Obj json)
+  Void verifyJson(RpcErr err, Str jsonStr)
   {
-    json2 := err.toJson
-    errFields.each { verifyEq(json2[it], json[it]) }
-    err2 := RpcErr.fromJson(json)
-    verifyEq(err.msg, err2.msg)
-    verifyEq(err.code, err2.code)
-    verifyEq(err.data, err2.data)
+    verifyFromToJson(err, json(jsonStr), errFields, [RpcErr#code, RpcErr#msg, RpcErr#data])
   }
 }

@@ -14,7 +14,7 @@ const class Request : RpcConsts
   ** Either `sys::List` for oredered params or `sys::Map` 
   ** for named params
   ** 
-  const Obj params
+  const Obj? params
   
   ** [Str]`sys::Str` or [Int]`sys::Int`, if null, then request
   ** is a notification and server should not send any response 
@@ -22,20 +22,23 @@ const class Request : RpcConsts
 
   Bool isNotification() { id == null }
   
-  Str:Obj toJson()
+  Str:Obj? toJson()
   {
-    [
+    [Str:Obj?][
       versionField : version.toStr,
       methodField : method,
-      paramsField : params
-    ].with { if(!isNotification) it[idField] = id }
+    ].with 
+    { 
+      if(id != null) it[idField] = id 
+      if(params != null) it[paramsField] = params
+    }
   }
   
   static Request fromJson(Obj json) 
   {
     if(json isnot Map) throw RpcErr.invalidRequest
     map := json as Map
-    Str? version:= map[versionField]
+    Obj? version:= map[versionField]
     Obj? id := map[idField]
     Obj? params := map[paramsField]
     Str? method := map[methodField]
@@ -47,7 +50,7 @@ const class Request : RpcConsts
     
     return Request {
       it.method = method
-      it.params = params ?: [,]
+      it.params = params
       it.id = id
     }
   }
@@ -57,9 +60,9 @@ const class Request : RpcConsts
     if(method isnot Str) throw RpcErr.invalidRequest
   }
   
-  private static Void verifyVersion(Str? version) 
+  private static Void verifyVersion(Obj? version) 
   {
-    if(version == null || Version(version, false) != defVersion)
+    if(version isnot Str || Version(version, false) != defVersion)
       throw RpcErr.invalidRequest
   }
   

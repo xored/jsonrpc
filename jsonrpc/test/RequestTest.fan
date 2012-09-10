@@ -1,55 +1,58 @@
 using util
-class RequestTest : Test, RpcConsts, TestUtils
+class RequestTest : RpcBaseTest, RpcConsts
 {
   Void testSimple()
   {
-    request := Request.fromJson(json(Str<|{ "jsonrpc" : "2.0", "method": "foo" }|>))
-    verifyNull(request.id)
-    verify(request.isNotification)
-    verifyEq(request.params, [,])
-    verifyEq(request.method, "foo")
+    verifyJson(
+      Request { method = "foo" }, 
+      Str<|{ "jsonrpc" : "2.0", "method": "foo" }|>)
   }
   
   Void testIntId()
   {
-    request := Request.fromJson(json(Str<|{ "id" : 2, "jsonrpc" : "2.0", "method": "foo" }|>))
-    verifyEq(request.id, 2)
-    verifyFalse(request.isNotification)
+    verifyJson(
+      Request { method = "foo"; id = 2 },
+      Str<|{ "id" : 2, "jsonrpc" : "2.0", "method": "foo" }|>)
   }
   
   Void testStrId()
   {
-    request := Request.fromJson(json(Str<|{ "id" : "2", "jsonrpc" : "2.0", "method": "foo" }|>))
-    verifyEq(request.id, "2")
+    verifyJson(
+      Request { method = "foo"; id = "2" },
+      Str<|{ "id" : "2", "jsonrpc" : "2.0", "method": "foo" }|>)
   }
   
   Void testParamsList()
   {
-    request := Request.fromJson(json(
-      Str<|{ "id" : "2",
+    verifyJson(
+      Request { method = "foo"; params = [1,2,3]; id = "2" },
+      Str<|{ 
+             "id" : "2",
              "params" : [1,2,3],
-             "jsonrpc" : "2.0", "method": "foo" }|>))
-    verifyList(request.params, [1,2,3])
+             "jsonrpc" : "2.0", 
+             "method": "foo" }|>)
   }
   
   Void testParamsMap()
   {
-    request := Request.fromJson(json(
-      Str<|{ "id" : "2",
-             "params" : { "first" : 1,"second" : 2},
-             "jsonrpc" : "2.0", "method": "foo" }|>))
-    verifyMap(request.params, ["first":1, "second":2])
+    verifyJson(
+      Request { method = "foo"; params = ["first":1, "second":2]; id = "2" },
+      Str<|{ 
+             "id" : "2",
+             "params" : {"first":1, "second":2},
+             "jsonrpc" : "2.0", 
+             "method": "foo" }|>)
   }
   
   Void testStructuredParams()
   {
-    request := Request.fromJson(json(
-      Str<|{ "id" : "2",
+    verifyJson(
+      Request { method = "foo"; params = [["name":"Ivan", "age":28]]; id = "foo" },
+      Str<|{ 
+             "id" : "foo",
              "params" : [{"name":"Ivan", "age": 28}],
-             "jsonrpc" : "2.0", "method": "foo" }|>))
-    verifyMap(request.params->first, ["name":"Ivan", "age":28])
-  }
-  
+             "jsonrpc" : "2.0", "method": "foo" }|>)
+  } 
   Void testNoVersion()
   {
     verifyInvalidRequest(Str<|{ "id" : "2", "method": "foo" }|>)
@@ -79,10 +82,11 @@ class RequestTest : Test, RpcConsts, TestUtils
   {
     verifyInvalidRequest(Str<|"id":2, "jsonrpc":"2.0","method":"a", "params":20|>)
   }
-  private Void verifyInvalidRequest(Str json)
+  
+  private Void verifyInvalidRequest(Str jsonStr)
   {
     verifyRpcErr(invalidRequestCode) |->| {
-      Request.fromJson(json)
+      Request.fromJson(json(jsonStr))
     }
   }
   
@@ -107,5 +111,11 @@ class RequestTest : Test, RpcConsts, TestUtils
       return
     }
     verify(false, "Expected RcpErr")
+  }
+  
+  private Void verifyJson(Request request, Str jsonStr) 
+  {
+    verifyFromToJson(request, json(jsonStr), requestFields, 
+      [Request#id, Request#method, Request#params, Request#version, Request#isNotification])
   }
 }

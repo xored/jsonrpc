@@ -7,8 +7,40 @@ abstract const class Response : RpcConsts
   
   virtual Str:Obj toJson()
   {
-    [versionField : version, idField : id]
+    [versionField : version.toStr, idField : id]
   }
+  
+  static Response fromJson(Obj json)
+  {
+    if(json isnot Map) throw ArgErr("Unsupported response object")
+    map := json as Map
+    Obj? version := map[versionField] 
+    Obj? id := map[idField]
+    Obj? err := map[errField]
+    Obj? result := map[resultField]
+    
+    verifyId(id)
+    verifyVersion(version)
+    
+    if ( 
+        [result, err].all { it == null} || 
+        [result, err].all { it != null} )
+      throw ArgErr("Exaclty one of 'result' and 'error' fields must be set")
+    
+    if(result != null) return ResultResponse(result, id)
+    return ErrResponse(RpcErr.fromJson(err), id)
+  }
+
+  private static Void verifyId(Obj? id) 
+  {
+    if(id isnot Str && id isnot Int) throw ArgErr("response id $id is neither string nor integer")
+  }
+  private static Void verifyVersion(Obj? version) 
+  {
+    if(version isnot Str || Version(version, false) != defVersion)
+      throw ArgErr("Unsupported response version")
+  }
+
 }
 
 const class ResultResponse : Response
