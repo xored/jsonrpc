@@ -12,16 +12,17 @@ const mixin Handler
 ** Uses reflection to handle requests
 const mixin ReflectHandler : Handler
 {
-  override Bool hasMethod(Str method) { typeof.slot(method) != null }
+  override Bool hasMethod(Str method) { typeof.slot(method, false) != null }
   
   override Bool areParamsValid(Str method, Obj? params)
   {
     slot := typeof.slot(method)
     paramDefs := slotParams(slot)
+    if(tooManyParams(params, paramDefs)) return false
+    
     paramVals := paramMap(params, paramDefs)
     
-    return notTooManyParams(paramVals, paramDefs) 
-      && noUnknownParams(paramVals, paramDefs)
+    return noUnknownParams(paramVals, paramDefs)
       && noUnmatchedParams(paramVals, paramDefs)
    
     return true
@@ -42,7 +43,7 @@ const mixin ReflectHandler : Handler
       return field.isStatic ? field.get : field.get(this)
     }
     Method method := slot
-    return method.isStatic ? method.call(args) : method.callOn(this, args)
+    return method.isStatic ? method.callList(args) : method.callOn(this, args)
   }
   
   private static Bool noUnmatchedParams(Str:Obj? paramVals, Param[] paramDefs)
@@ -56,20 +57,19 @@ const mixin ReflectHandler : Handler
       
       if(inDefaults && hasValue) return false //Once we are in defaults, no params can be given
       if(!hasValue && !def.hasDefault) return false //Default val is not set and no value given
-      if(!valueMatches(def, paramVals[def.name])) return false //Param is unassignable
+      if(hasValue && !valueMatches(def, paramVals[def.name])) return false //Param is unassignable
     }
     return true
   }
   
   private static Bool valueMatches(Param param, Obj? val)
   {
-    (val == null && param.type.isNullable) ||
-    (val.typeof.fits(param.type))
+    val == null ? param.type.isNullable : val.typeof.fits(param.type)
   }
  
-  private static Bool notTooManyParams(Str:Obj? paramVals, Param[] paramDefs)
+  private static Bool tooManyParams(Obj? params, Param[] paramDefs)
   {
-    paramVals.size <= paramDefs.size
+    ((params is Map || params is List) ? params->size : 0) > paramDefs.size
   }
 
   private static Bool noUnknownParams(Str:Obj? paramVals, Param[] paramDefs)
@@ -101,7 +101,7 @@ const mixin ReflectHandler : Handler
   private static Str:Obj? paramMap(Obj? params, Param[] slotParams)
   {
     if(params == null) return [:]
-    return params is Str:Obj? ? params : 
+    return params is Map ? params : 
       [:].addList((Obj?[])params) |p, i| { slotParams[i].name }
   }
 }

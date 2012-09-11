@@ -8,7 +8,8 @@ const class Server
   Str? handle(Str request)
   {
     json := fromJson(request)
-    if(json isnot List) return toJson(handleRequest(Request.fromJson(json)))
+    if(json isnot List) 
+      return toJson(handleRequest(Request.fromJson(json))?.toJson)
     
     requests := json as Obj?[]
     if(requests.isEmpty) throw RpcErr.invalidRequest
@@ -27,7 +28,6 @@ const class Server
   
   Response? handleRequest(Request request)
   {
-    Obj? result := null 
     if(!handler.hasMethod(request.method)) 
       return buildResponse(request.id, RpcErr.methodNotFound)
     if(!handler.areParamsValid(request.method, request.params)) 

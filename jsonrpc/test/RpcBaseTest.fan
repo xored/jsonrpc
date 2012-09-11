@@ -26,7 +26,8 @@ class RpcBaseTest : Test
   Void verifyMaps(Map m1, Map m2)
   {
     verifyEq(m1.size, m2.size)
-    verifyEq(m1.keys.intersection(m2.keys).size, m1.keys.union(m2.keys).size)
+    verifyEq(m1.keys.intersection(m2.keys).size, m1.keys.union(m2.keys).size, 
+      "m1.keys: $m1.keys, m2.keys: $m2.keys")
     m1.each |v,k| { verifyEquiv(v, m2[k]) }
   }
   
