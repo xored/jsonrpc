@@ -11,6 +11,11 @@ class ResponseTest : RpcBaseTest, RpcConsts
     verifyJson(ResultResponse("1", "2"), Str<|{"jsonrpc":"2.0", "result":"1", "id":"2"}|>)
   }
   
+  Void testNullResponse()
+  {
+    verifyJson(ResultResponse(null, "2"), Str<|{"jsonrpc":"2.0", "result":null, "id":"2"}|>)
+  }
+  
   Void testCompositeResponse()
   {
     verifyJson(ResultResponse(["int":1, "str":"a"], 0), Str<|{"jsonrpc":"2.0", "result":{"int":1,"str":"a"}, "id":0}|>)
@@ -25,6 +30,13 @@ class ResponseTest : RpcBaseTest, RpcConsts
   {
     verifyJson(ErrResponse(RpcErr(0, "a"), 0), Str<|{"jsonrpc":"2.0", "id":0, "error":{"code":0, "message":"a"}}|>)
   }
+
+  Void testDetailedErr()
+  {
+    verifyJson(ErrResponse(RpcErr(0, "a", [1,2,3]), 0), 
+      Str<|{"jsonrpc":"2.0", "id":0, "error":{"code":0,"message":"a","data":[1,2,3]}}|>)
+  }
+  
   private static const Slot[] resultSlots := [Response#id, Response#version, ResultResponse#result]
   private static const Slot[] errSlots := [Response#id, Response#version, ErrResponse#err]
   

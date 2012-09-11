@@ -1,11 +1,11 @@
 
 abstract const class Response : RpcConsts
 {
-  new make(Obj id) { this.id = id }
+  new make(Obj? id) { this.id = id }
   const Version version := defVersion
-  const Obj id
+  const Obj? id
   
-  virtual Str:Obj toJson()
+  virtual Str:Obj? toJson()
   {
     [versionField : version.toStr, idField : id]
   }
@@ -17,23 +17,27 @@ abstract const class Response : RpcConsts
     Obj? version := map[versionField] 
     Obj? id := map[idField]
     Obj? err := map[errField]
+    hasId := map.containsKey(idField)
+    hasResult := map.containsKey(resultField)
     Obj? result := map[resultField]
     
-    verifyId(id)
+    verifyId(id, hasId)
     verifyVersion(version)
     
-    if ( 
-        [result, err].all { it == null} || 
-        [result, err].all { it != null} )
+    if (
+      (!hasResult && err == null) ||
+      (hasResult && err != null)
+        )
       throw ArgErr("Exaclty one of 'result' and 'error' fields must be set")
     
-    if(result != null) return ResultResponse(result, id)
+    if (hasResult) return ResultResponse(result, id)
     return ErrResponse(RpcErr.fromJson(err), id)
   }
 
-  private static Void verifyId(Obj? id) 
+  private static Void verifyId(Obj? id, Bool hasId) 
   {
-    if(id isnot Str && id isnot Int) throw ArgErr("response id $id is neither string nor integer")
+    if(!hasId) throw ArgErr("response id field must be set")
+    if(id != null && id isnot Str && id isnot Int) throw ArgErr("response id $id is neither string nor integer")
   }
   private static Void verifyVersion(Obj? version) 
   {
@@ -48,7 +52,7 @@ const class ResultResponse : Response
   const Obj? result
   new make(Obj? result, Obj id) : super(id) { this.result = result }
   
-  override Str:Obj toJson() 
+  override Str:Obj? toJson() 
   {
     super.toJson[resultField] = result
   }
@@ -57,7 +61,7 @@ const class ResultResponse : Response
 const class ErrResponse : Response
 {
   const RpcErr err
-  new make(RpcErr err, Obj id) : super(id) { this.err = err }
+  new make(RpcErr err, Obj? id) : super(id) { this.err = err }
   
   override Str:Obj toJson()
   {

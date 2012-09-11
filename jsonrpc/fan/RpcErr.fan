@@ -32,18 +32,38 @@ const class RpcErr : Err, RpcConsts
     return RpcErr(code, msg, data)
   }
   
-  private static RpcErr predefined(Int code, Obj? data := null, Err? cause := null) 
+  private static RpcErr predefined(Int code, Obj? data := null) 
   {
-    RpcErr(code, defaultMessages[code], data, cause)
+    RpcErr(code, defaultMessages[code], data)
   }
   
   static RpcErr parseErr(Err? cause := null) 
   {
-    predefined(parseErrCode, null, cause)
+    predefined(parseErrCode, cause.traceToStr)
   }
   
   static RpcErr invalidRequest()
   {
     predefined(invalidRequestCode)
+  }
+  
+  static RpcErr methodNotFound()
+  {
+    predefined(methodNotFoundCode)
+  }
+  
+  static RpcErr invalidParams() 
+  {
+    predefined(invalidParamsCode)
+  }
+  
+  static RpcErr internalError()
+  {
+    predefined(internalErrorCode)
+  }
+  
+  static RpcErr applicationError(Err e)
+  {
+    predefined(applicationErrorCode, e.traceToStr)
   }
 }
