@@ -6,14 +6,6 @@ using util
 ** 
 class RpcBaseTest : Test
 {
-  static Obj json(Str str)
-  {
-    in := str.in
-    result := JsonInStream(in).readJson
-    if(in.peekChar != null) throw ParseErr()
-    return result;
-  }
-  
   ** Deep comparison of maps and lists
   ** disregarding generic params
   virtual Void verifyEquiv(Obj? o1, Obj? o2)

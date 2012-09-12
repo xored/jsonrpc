@@ -1,5 +1,6 @@
+using util
 
-mixin RpcConsts
+mixin RpcUtils
 {
   static const Version defVersion := Version("2.0")
   static const Str idField := "id"
@@ -35,4 +36,11 @@ mixin RpcConsts
       applicationErrorCode : "Server error."
     ]
 
+  static Obj fromJsonStr(Str str)
+  {
+    in := str.in
+    result := JsonInStream(in).readJson
+    if(in.peekChar != null) throw ParseErr()
+    return result;
+  }
 }

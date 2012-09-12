@@ -7,7 +7,7 @@ const class ConstSpecHandler : ReflectHandler
   Obj?[] get_data() { ["hello", 5] }
 }
 
-class SpecTest : RpcBaseTest
+class SpecTest : RpcBaseTest, RpcUtils
 {
   private const Server server := Server(ConstSpecHandler())
   
@@ -146,8 +146,8 @@ class SpecTest : RpcBaseTest
       
   Void verifyPair(Str request, Str response)
   {
-    responseJson := json(server.handle(request))
-    expectedJson := json(response)
+    responseJson := fromJsonStr(server.handle(request))
+    expectedJson := fromJsonStr(response)
     verifyEquiv(responseJson, expectedJson)
   }
 }

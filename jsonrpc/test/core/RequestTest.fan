@@ -1,5 +1,5 @@
 using util
-class RequestTest : RpcBaseTest, RpcConsts
+class RequestTest : RpcBaseTest, RpcUtils
 {
   Void testSimple()
   {
@@ -86,7 +86,7 @@ class RequestTest : RpcBaseTest, RpcConsts
   private Void verifyInvalidRequest(Str jsonStr)
   {
     verifyRpcErr(invalidRequestCode) |->| {
-      Request.fromJson(json(jsonStr))
+      Request.fromJson(fromJsonStr(jsonStr))
     }
   }
   
@@ -115,7 +115,7 @@ class RequestTest : RpcBaseTest, RpcConsts
   
   private Void verifyJson(Request request, Str jsonStr) 
   {
-    verifyFromToJson(request, json(jsonStr), requestFields, 
+    verifyFromToJson(request, fromJsonStr(jsonStr), requestFields, 
       [Request#id, Request#method, Request#params, Request#version, Request#isNotification])
   }
 }

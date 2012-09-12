@@ -1,5 +1,5 @@
 
-class ResponseTest : RpcBaseTest, RpcConsts
+class ResponseTest : RpcBaseTest, RpcUtils
 {
   Void testIntResponse()
   {
@@ -44,7 +44,7 @@ class ResponseTest : RpcBaseTest, RpcConsts
   {
     jsonFields := response is ErrResponse ? errResponseFields : resultResponseFields
     objSlots := response is ErrResponse ? errSlots : resultSlots 
-    verifyFromToJson(response, json(jsonStr), jsonFields, objSlots)
+    verifyFromToJson(response, fromJsonStr(jsonStr), jsonFields, objSlots)
   }
   
   override Void verifyEquiv(Obj? o1, Obj? o2)

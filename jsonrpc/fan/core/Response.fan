@@ -1,5 +1,5 @@
 
-abstract const class Response : RpcConsts
+abstract const class Response : RpcUtils
 {
   new make(Obj? id) { this.id = id }
   const Version version := defVersion

@@ -1,5 +1,5 @@
 using util
-const class Request : RpcConsts
+const class Request : RpcUtils
 {
   new make(|This|? f := null) { f?.call(this) }
   

@@ -1,5 +1,5 @@
 
-const class RpcErr : Err, RpcConsts
+const class RpcErr : Err, RpcUtils
 {
   new make(Int code, Str msg, Obj? data := null, Err? cause := null)
     : super(msg, cause)

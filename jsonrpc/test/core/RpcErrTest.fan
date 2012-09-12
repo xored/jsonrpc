@@ -1,5 +1,5 @@
 
-class RpcErrTest : RpcBaseTest, RpcConsts
+class RpcErrTest : RpcBaseTest, RpcUtils
 {
   Void testSimpleJson()
   {
@@ -34,6 +34,7 @@ class RpcErrTest : RpcBaseTest, RpcConsts
   
   Void verifyJson(RpcErr err, Str jsonStr)
   {
-    verifyFromToJson(err, json(jsonStr), errFields, [RpcErr#code, RpcErr#msg, RpcErr#data])
+    verifyFromToJson(err, fromJsonStr(jsonStr), 
+      errFields, [RpcErr#code, RpcErr#msg, RpcErr#data])
   }
 }

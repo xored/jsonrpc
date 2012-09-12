@@ -1,6 +1,6 @@
 using util
 
-const class Server
+const class Server : RpcUtils
 {
   private const Handler handler
   new make(Handler handler) { this.handler = handler }
@@ -58,13 +58,5 @@ const class Server
   private static Str? toJsonStr(Obj? obj)
   {
     obj == null || ((obj as List)?.isEmpty ?: false) ? null : JsonOutStream.writeJsonToStr(obj)
-  }
-  
-  private static Obj fromJsonStr(Str str) 
-  { 
-    in := str.in
-    result := JsonInStream(in).readJson
-    if(in.peekChar != null) throw ParseErr()
-    return result
   }
 }
