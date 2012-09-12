@@ -1,3 +1,8 @@
-** jsonrpc
-
-   Pure Fantom implementation of JSON-RPC 2.0 protocol
+** What
+   Pure Fantom implementation of client and server conforming [[http://www.jsonrpc.org/specification][JSON-RPC 2.0 protocol]]. Two reference implementations is going to be created:
+   - HTTP-based. Server is a [[http://fantom.org/doc/web/WebMod.html][WebMod]], client is based on [[http://fantom.org/doc/web/WebClient.html][WebClient]].
+   - TCP-based. 
+     
+** Why?
+   - On a pure Fantom remote end we can expose functionality to [[http://en.wikipedia.org/wiki/JSON-RPC#Implementations][any JSON-RPC client]].
+   - We can make a pure Fantom client for [[http://en.wikipedia.org/wiki/JSON-RPC#Implementations][any JSON-RPC server]].
