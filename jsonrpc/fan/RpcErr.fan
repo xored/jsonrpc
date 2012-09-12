@@ -37,9 +37,9 @@ const class RpcErr : Err, RpcConsts
     RpcErr(code, defaultMessages[code], data)
   }
   
-  static RpcErr parseErr(Err? cause := null) 
+  static RpcErr parseErr() 
   {
-    predefined(parseErrCode, cause.traceToStr)
+    predefined(parseErrCode)
   }
   
   static RpcErr invalidRequest()

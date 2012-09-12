@@ -60,27 +60,27 @@ class RequestTest : RpcBaseTest, RpcConsts
   
   Void testUnparseableVersion()
   {
-    verifyInvalidRequest(Str<| "id": 2, "method":"foo", "jsonrpc": "aaa" |>)
+    verifyInvalidRequest(Str<|{"id": 2, "method":"foo", "jsonrpc": "aaa"}|>)
   }
   
   Void testUnmatchingVersion()
   {
-    verifyInvalidRequest(Str<| "id": 2, "method":"foo", "jsonrpc": "1.0" |>)
+    verifyInvalidRequest(Str<|{"id": 2, "method":"foo", "jsonrpc": "1.0"}|>)
   }
   
   Void testNoMethod()
   {
-    verifyInvalidRequest(Str<|"id":2, "jsonrpc":"2.0"|>)
+    verifyInvalidRequest(Str<|{"id":2, "jsonrpc":"2.0"}|>)
   }
   
   Void testMethodNotStr()
   {
-    verifyInvalidRequest(Str<|"id":2, "jsonrpc" : "2.0", "method":32|>)
+    verifyInvalidRequest(Str<|{"id":2, "jsonrpc" : "2.0", "method":32}|>)
   }
   
   Void testParamsNotListOrMap()
   {
-    verifyInvalidRequest(Str<|"id":2, "jsonrpc":"2.0","method":"a", "params":20|>)
+    verifyInvalidRequest(Str<|{"id":2, "jsonrpc":"2.0","method":"a", "params":20}|>)
   }
   
   private Void verifyInvalidRequest(Str jsonStr)

@@ -61,7 +61,7 @@ const class ResultResponse : Response
 const class ErrResponse : Response
 {
   const RpcErr err
-  new make(RpcErr err, Obj? id) : super(id) { this.err = err }
+  new make(RpcErr err, Obj? id := null) : super(id) { this.err = err }
   
   override Str:Obj toJson()
   {

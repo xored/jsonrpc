@@ -41,7 +41,7 @@ const class Request : RpcConsts
     Obj? version:= map[versionField]
     Obj? id := map[idField]
     Obj? params := map[paramsField]
-    Str? method := map[methodField]
+    Obj? method := map[methodField]
 
     verifyMethod(method)
     verifyVersion(version)
@@ -55,7 +55,7 @@ const class Request : RpcConsts
     }
   }
   
-  private static Void verifyMethod(Str? method) 
+  private static Void verifyMethod(Obj? method) 
   {
     if(method isnot Str) throw RpcErr.invalidRequest
   }

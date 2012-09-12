@@ -8,7 +8,10 @@ class RpcBaseTest : Test
 {
   static Obj json(Str str)
   {
-    JsonInStream(str.in).readJson
+    in := str.in
+    result := JsonInStream(in).readJson
+    if(in.peekChar != null) throw ParseErr()
+    return result;
   }
   
   ** Deep comparison of maps and lists

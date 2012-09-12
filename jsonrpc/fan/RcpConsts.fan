@@ -27,12 +27,12 @@ mixin RpcConsts
   static const Int applicationErrorCode := -32500
   
   static const Int:Str defaultMessages := [
-      parseErrCode : "Parse error",
-      invalidRequestCode : "Invalid Request",
-      methodNotFoundCode : "Method not found",
-      invalidParamsCode : "Invalid params",
-      internalErrorCode : "Internal error",
-      applicationErrorCode : "Server error"
+      parseErrCode : "Parse error.",
+      invalidRequestCode : "Invalid Request.",
+      methodNotFoundCode : "Method not found.",
+      invalidParamsCode : "Invalid params.",
+      internalErrorCode : "Internal error.",
+      applicationErrorCode : "Server error."
     ]
 
 }

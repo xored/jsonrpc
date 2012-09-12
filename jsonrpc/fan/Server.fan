@@ -7,57 +7,64 @@ const class Server
   
   Str? handle(Str request)
   {
-    json := fromJson(request)
-    if(json isnot List) 
-      return toJson(handleRequest(Request.fromJson(json))?.toJson)
+    Obj? json := null
+    try json = fromJsonStr(request)
+    catch(ParseErr e) return toErrStr(RpcErr.parseErr)
+    
+
+    if(json isnot List) return toJsonStr(getResponseJson(json))
     
     requests := json as Obj?[]
-    if(requests.isEmpty) throw RpcErr.invalidRequest
+    if(requests.isEmpty) return toErrStr(RpcErr.invalidRequest)
     
-    return toJson(
-      requests
-      .map |rq| 
-      {
-        try return handleRequest(Request.fromJson(json))
-        catch(RpcErr e) return ErrResponse(e, null)
-      }
+    return toJsonStr(
+      requests.map |rq| { getResponseJson(rq) }
       .exclude { it == null }
-      .map |Response r -> Obj| { r.toJson }
     )
   }
   
-  Response? handleRequest(Request request)
-  {
-    if(!handler.hasMethod(request.method)) 
-      return buildResponse(request.id, RpcErr.methodNotFound)
-    if(!handler.areParamsValid(request.method, request.params)) 
-      return buildResponse(request.id, RpcErr.invalidParams)
-    
-    try  
-      return buildResponse(request.id, 
-        handler.execute(request.method, request.params))
-    catch(Err e)
-      return buildResponse(request.id, e)
+  private static Str toErrStr(RpcErr err, Obj? id := null) 
+  { 
+    toJsonStr(ErrResponse(err, id).toJson)
   }
   
-  private Response? buildResponse(Obj? id, Obj result)
+  ** Parsed json -> Response json 
+  private Obj? getResponseJson(Obj requestJson)
   {
-    if(id == null) return null
+    Request? request := null
+    
+    try request = Request.fromJson(requestJson)
+    catch(RpcErr e) return toResponse(false, null, e).toJson
+    
+    return toResponse(request.isNotification, request.id, getResult(request))?.toJson
+  }
+  
+  private Obj? getResult(Request request)
+  {
+    if(!handler.hasMethod(request.method)) return RpcErr.methodNotFound
+    if(!handler.areParamsValid(request.method, request.params)) return RpcErr.invalidParams
+    try return handler.execute(request.method, request.params)
+    catch(Err e) return e
+  }
+  
+  private Response? toResponse(Bool isNotification, Obj? id, Obj? result)
+  {
+    if(isNotification) return null
     if(result isnot Err) return ResultResponse(result, id)
     if(result isnot RpcErr) result = RpcErr.applicationError(result)
     return ErrResponse(result, id)
   }
   
-  static Str? toJson(Obj? obj)
+  private static Str? toJsonStr(Obj? obj)
   {
-    obj == null ? null : JsonOutStream.writeJsonToStr(obj)
+    obj == null || ((obj as List)?.isEmpty ?: false) ? null : JsonOutStream.writeJsonToStr(obj)
   }
   
-  static Obj fromJson(Str str)
-  {
-    try 
-      return JsonInStream(str.in).readJson
-    catch(ParseErr e)
-      throw RpcErr.parseErr(e)
+  private static Obj fromJsonStr(Str str) 
+  { 
+    in := str.in
+    result := JsonInStream(in).readJson
+    if(in.peekChar != null) throw ParseErr()
+    return result
   }
 }
