@@ -45,4 +45,15 @@ class RpcBaseTest : Test
     slot is Field ? (slot as Field).get(instance) : (slot as Method).call(instance)
   }
 
+  Void verifyRpcErr(Int code, |->| func)
+  {
+    try func()
+    catch(RpcErr e)
+    {
+      verifyEq(e.code, code)
+      return
+    }
+    verify(false, "Expected RcpErr")
+  }
+  
 }

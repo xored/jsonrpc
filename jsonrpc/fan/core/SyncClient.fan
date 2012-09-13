@@ -12,7 +12,7 @@ abstract const class Client
     AsyncClient(transport)
   }
   
-  static Str makeRequest(Str method, Obj?[]? params, Obj? id := null)
+  static Str makeRequest(Str method, Obj? params, Obj? id := null)
   {
     JsonOutStream.writeJsonToStr(
       Request { it.method = method; it.id = id; it.params = params }.toJson
@@ -32,7 +32,7 @@ const class SyncClient : Client, RpcUtils
   ** Throws:
   ** - [IOErr]`sys::IOErr` on transport errs
   ** - [RpcErr]`jsonrpc::RpcErr` on server errs
-  Obj? request(Str method, Obj?[]? params := null)
+  Obj? request(Str method, Obj? params := null)
   {
     response := Response.fromJson(
       fromJsonStr(
@@ -44,7 +44,7 @@ const class SyncClient : Client, RpcUtils
   
   ** Throws:
   ** - [IOErr]`sys::IOerr` on transport errs 
-  Void notify(Str method, Obj?[]? params := null)
+  Void notify(Str method, Obj? params := null)
   {
     transport.send(makeRequest(method, params))
   }

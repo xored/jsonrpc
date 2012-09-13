@@ -102,17 +102,6 @@ class RequestTest : RpcBaseTest, RpcUtils
     expected.each |v,k| { verifyEq(v, actual[k]) }
   }
   
-  private Void verifyRpcErr(Int code, |->| func)
-  {
-    try func()
-    catch(RpcErr e)
-    {
-      verifyEq(e.code, code)
-      return
-    }
-    verify(false, "Expected RcpErr")
-  }
-  
   private Void verifyJson(Request request, Str jsonStr) 
   {
     verifyFromToJson(request, fromJsonStr(jsonStr), requestFields, 
