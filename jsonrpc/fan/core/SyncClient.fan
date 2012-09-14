@@ -18,6 +18,11 @@ abstract const class Client
       Request { it.method = method; it.id = id; it.params = params }.toJson
     )
   }
+  
+  static Response makeResponse(Str responseStr) 
+  { 
+    Response.fromJson(RpcUtils.fromJsonStr(responseStr))
+  }
 }
 
 const class SyncClient : Client, RpcUtils

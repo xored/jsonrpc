@@ -69,7 +69,7 @@ const class RpcService : Service
   }
 }
 
-const class ClientActor : Actor
+internal const class ClientActor : Actor
 {
   private const Server server
   new make(RpcService service) : super(service.processorPool) { this.server = service.server }
@@ -78,7 +78,8 @@ const class ClientActor : Actor
   {
     TcpSocket socket := (msg as Unsafe).val
     socket.options.receiveTimeout = 10sec //took from WispActor
-    try while(true) Actor(pool) |Unsafe m| { handle(m) }.send([socket.in.readUtf, socket.out])
+    writer := Writer(socket.out, pool)
+    try while(true) Executor(server, writer, pool).send(socket.in.readUtf)
     catch(IOErr e) {} // do nothing, client disconnected 
     return null
   }
@@ -92,5 +93,36 @@ const class ClientActor : Actor
     res := server.handle(req)
     try if(res != null) out.writeUtf(res)
     catch (IOErr e) { RpcService.log.err("sending response", e)} 
+  }
+}
+
+internal const class Executor : Actor
+{
+  private const Writer writer
+  private const Server server
+  new make(Server server, Writer writer, ActorPool pool) : super(pool) 
+  { 
+    this.writer = writer
+    this.server = server
+  }
+  
+  override Obj? receive(Obj? msg)
+  {
+    str := msg as Str
+    if(str != null) writer.send(server.handle(str))
+    return null
+  }
+}
+internal const class Writer : Actor
+{
+  private const Unsafe outBox
+  private OutStream out() { outBox.val }
+  new make(OutStream out, ActorPool pool) : super(pool) { outBox = Unsafe(out) }
+  
+  override Obj? receive(Obj? msg)
+  {
+    str := msg as Str
+    if(str != null) out.writeUtf(str)
+    return null
   }
 }

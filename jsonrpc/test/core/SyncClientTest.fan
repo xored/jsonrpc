@@ -7,6 +7,8 @@ const class DelegatingTransport : SyncTransport
   override Str? send(Str req) { server.handle(req) }
 }
 
+
+
 abstract class SyncClientTest : RpcBaseTest, RpcUtils
 {
   abstract SyncClient client()
@@ -28,7 +30,7 @@ abstract class SyncClientTest : RpcBaseTest, RpcUtils
   
   Void test4()
   {
-    verifyEq(client.request("subtract", ["subtrahend":23, "minuend":42]), 19)
+    verifyEq(client.request("subtract", ["minuend":42, "subtrahend":23]), 19)
   }
   
   Void test5()
