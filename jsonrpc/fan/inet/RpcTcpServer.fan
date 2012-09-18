@@ -79,20 +79,16 @@ internal const class ClientActor : Actor
     TcpSocket socket := (msg as Unsafe).val
     socket.options.receiveTimeout = 10sec //took from WispActor
     writer := Writer(socket.out, pool)
-    try while(true) Executor(server, writer, pool).send(socket.in.readUtf)
-    catch(IOErr e) {} // do nothing, client disconnected 
+    while(true)
+    {
+      try Executor(server, writer, pool).send(socket.in.readUtf)
+      catch(IOErr e) 
+      {
+        if(e.msg.contains("SocketTimeoutException")) continue
+        else break
+      }
+    }
     return null
-  }
-    
-  private Void handle(Unsafe msg)
-  {
-    list := (Obj[])msg.val
-    Str req := list.first
-    OutStream out := list.last
-    
-    res := server.handle(req)
-    try if(res != null) out.writeUtf(res)
-    catch (IOErr e) { RpcService.log.err("sending response", e)} 
   }
 }
 
@@ -122,7 +118,7 @@ internal const class Writer : Actor
   override Obj? receive(Obj? msg)
   {
     str := msg as Str
-    if(str != null) out.writeUtf(str)
+    if(str != null) out.writeUtf(str).flush
     return null
   }
 }

@@ -34,12 +34,17 @@ const class AsyncClient : Client
   
   Void request(Str method, Obj? params, | |->Obj| | callback) 
   {
+    if(params isnot List && params isnot Map) params = [params]
     id := Duration.nowTicks
     callbackMap.set(id, callback)
     requestor.send(makeRequest(method, params, id))
   }
   
-  Void notify(Str method, Obj?[]? params := null) { requestor.send(makeRequest(method, params)) }
+  Void notify(Str method, Obj? params := null) 
+  {
+    if(params isnot List && params isnot Map) params = [params]
+    requestor.send(makeRequest(method, params)) 
+  }
 }
 
 internal const class CallbackMap : Actor

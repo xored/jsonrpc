@@ -64,9 +64,18 @@ const mixin ReflectHandler : Handler
   
   private static Bool valueMatches(Param param, Obj? val)
   {
-    val == null ? param.type.isNullable : val.typeof.fits(param.type)
+    if (val == null) return param.type.isNullable
+    if (val is List && param.type.fits(List#)) return true //don't match
+    if (val is Map && param.type.fits(Map#)) return true   //  generic args
+    return val.typeof.fits(param.type)
   }
  
+  private static Bool isSimple(Type type)
+  {
+    serializable := type.facets.find { it is Serializable } as Serializable
+    return serializable?.simple ?: false
+  }
+  
   private static Bool tooManyParams(Obj? params, Param[] paramDefs)
   {
     ((params is Map || params is List) ? params->size : 0) > paramDefs.size

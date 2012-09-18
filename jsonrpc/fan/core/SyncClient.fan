@@ -39,6 +39,7 @@ const class SyncClient : Client, RpcUtils
   ** - [RpcErr]`jsonrpc::RpcErr` on server errs
   Obj? request(Str method, Obj? params := null)
   {
+    if(params isnot Map && params isnot List) params = [params]
     response := Response.fromJson(
       fromJsonStr(
         transport.send(
@@ -51,6 +52,7 @@ const class SyncClient : Client, RpcUtils
   ** - [IOErr]`sys::IOerr` on transport errs 
   Void notify(Str method, Obj? params := null)
   {
+    if(params isnot List && params isnot Map) params = [params]
     transport.send(makeRequest(method, params))
   }
 }

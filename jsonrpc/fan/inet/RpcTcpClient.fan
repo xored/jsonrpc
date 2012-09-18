@@ -23,11 +23,11 @@ const class InetTransport : AsyncTransport
     this.pool = pool
   }
 
-  override Void send(Str str) { socket.out.writeUtf(str) }
+  override Void send(Str str) { socket.out.writeUtf(str).flush }
 
   override Void start(|Str| consumer)
   {
-    socket.bind(addr, port)
+    socket.connect(addr, port)
     Actor(pool) |Obj o| { loop(o) }.send(consumer)
   }
   
