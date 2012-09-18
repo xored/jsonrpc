@@ -6,3 +6,80 @@
 ** Why?
    - On a pure Fantom remote end we can expose functionality to [[http://en.wikipedia.org/wiki/JSON-RPC#Implementations][any JSON-RPC client]].
    - We can make a pure Fantom client for [[http://en.wikipedia.org/wiki/JSON-RPC#Implementations][any JSON-RPC server]].
+
+** Description
+   Here are the core classes used on server side:
+   - =Server= -- transport-agnostic call translator which returns =Str= request from =Str= response. All calls are delegated to a =Handler=. Library users are very unlikely require to change it.
+   - =Handler= -- abstract method executor
+   - =ReflectHandler= -- handler implementation which uses reflection to call methods of current object. Also gives an access to fields as methods without params.
+   
+   There are two ready-to-use components which enable remote access to server:
+   - =RpcMod= -- accepts JSON requests from HTTP POSTs and writes back JSON responses
+   - =RpcTcpService= -- binds to TCP socket and asynchronously processes incoming messages by invoking =InStream#.readUtf=
+
+   Client side has two implementations of clients -- sync and async. Sync client blocks until it gets a response, and async client receives callback along with request which will be invoked once response is received. To add custom implementation, it is required to implement either =SyncTransport= or =AsyncTransport= and then just create corresponding client by invoking =Client.sync(transport)= or =Client.async(transport)=.
+   Two ready-to-use client implementations available:
+   - =RpcWebClient= -- sync transport which sends POST requests with JSON to given URI
+   - =RpcTcpClient= -- async transport which writes JSON requests as UTF strings
+   
+** Examples
+*** Web
+    Simple server which exposes a =sum= method:
+    #+BEGIN_SRC fantom
+      using util
+      using jsonrpc
+      
+      class Server : AbstractMain
+      {
+        @Opt Int port := 8080
+      
+        override Int run()
+        {
+          runServices([
+              WispService
+              {
+                it.port = this.port
+                it.root = RpcMod(MathHandler())
+              }
+             ])
+        }
+      }
+      
+      const class MathHandler : ReflectHandler
+      {
+        Int sum(Int[] args) { args.reduce(0) |Int r, Int v->Int| { r + v } }
+      }
+    #+END_SRC
+
+    Corresponding client:
+    #+BEGIN_SRC fantom
+      echo(RpcWebClient(`http://localhost:8080`).request("sum", [[1,2,3]]) 
+      //output: 6
+    #+END_SRC
+
+*** Inet
+    Server:
+    #+BEGIN_SRC fantom
+      using util
+      using jsonrpc
+      
+      class Server : AbstractMain
+      {
+        @Opt Int port := 4750
+
+        override Int run() { runServices([RpcService(MathHandler(), port)]) }
+      }
+      
+      const class MathHandler : ReflectHandler
+      {
+        Int sum(Int[] args) { args.reduce(0) |Int r, Int v->Int| { r + v } }
+      }
+      
+    #+END_SRC
+
+    Client:
+    #+BEGIN_SRC fantom
+      //Callback accepts a Func as a parameter, so that invocation of this func 
+      //will throw RpcErr in case of error on server side
+      RpcTcpClient(IpAddr.local, 4750).request("sum", [[1,2,3]]) |res| { echo(res.call) }
+    #+END_SRC
